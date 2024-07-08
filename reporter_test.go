@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/approvals/go-approval-tests/reporters"
-	"github.com/approvals/go-approval-tests/utils"
+	"github.com/customerio/go-approval-tests/reporters"
+	"github.com/customerio/go-approval-tests/utils"
 )
 
 // TestFailable is a fake replacing testing.T
