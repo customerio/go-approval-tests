@@ -1,3 +1,11 @@
+# Fork of go-approval-tests
+
+This fork incorporates https://github.com/approvals/go-approval-tests/pull/41 , which has not been accepted yet by upstream. Once/if that PR is accepted, and merged, users of this fork can go back to using the original go-approval-tests.
+
+This fork renames the module to `customerio/go-approval-tests`. This avoids the use of `replace` directives in `go.mod`, which for modules that depend on other modules using `replace`.
+
+---
+
 # ApprovalTests.go
 
 ApprovalTests for [go](https://golang.org/)
