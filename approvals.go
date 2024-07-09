@@ -11,8 +11,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/approvals/go-approval-tests/reporters"
-	"github.com/approvals/go-approval-tests/utils"
+	"github.com/customerio/go-approval-tests/reporters"
+	"github.com/customerio/go-approval-tests/utils"
 )
 
 var (

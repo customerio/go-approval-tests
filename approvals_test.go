@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/approvals/go-approval-tests/reporters"
+	"github.com/customerio/go-approval-tests/reporters"
 )
 
 func TestMain(m *testing.M) {

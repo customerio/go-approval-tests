@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/approvals/go-approval-tests/utils"
+	"github.com/customerio/go-approval-tests/utils"
 )
 
 type quiet struct{}

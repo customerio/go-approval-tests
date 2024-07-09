@@ -1,7 +1,7 @@
 package approvals_test
 
 import (
-	approvals "github.com/approvals/go-approval-tests"
+	approvals "github.com/customerio/go-approval-tests"
 )
 
 func ExampleVerifyString() {

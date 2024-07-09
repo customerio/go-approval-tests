@@ -3,23 +3,30 @@ name: Build and Test
 
 on:
   push:
+    branches:
+      - main
   pull_request:
-  repository_dispatch:
-  schedule:
-     - cron: '05 5 1 * *' # <https://crontab.guru/#05_5_1_*_*> - "At 05:05 on day-of-month 1"  
+#  repository_dispatch:
+#  schedule:
+#     - cron: '05 5 1 * *' # <https://crontab.guru/#05_5_1_*_*> - "At 05:05 on day-of-month 1"
 
 
 jobs:
 
   build-and-test:
-    runs-on: windows-latest 
-    
+    runs-on:
+#      - windows-latest
+      - ubuntu-latest
+
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     
     - name: Setup Go environment
-      uses: actions/setup-go@v2.2.0
+      uses: actions/setup-go@v5
+      with:
+        go-version: 1.22.3
+        cache: false
     
     - name: Build
       run: go build -v ./...

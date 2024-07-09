@@ -3,7 +3,7 @@ package reporters
 import (
 	"os/exec"
 
-	"github.com/approvals/go-approval-tests/utils"
+	"github.com/customerio/go-approval-tests/utils"
 )
 
 // NewFrontLoadedReporter creates the default front loaded reporter.

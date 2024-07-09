@@ -7,7 +7,7 @@ import (
 	"log"
 	"strings"
 
-	approvals "github.com/approvals/go-approval-tests"
+	approvals "github.com/customerio/go-approval-tests"
 )
 
 var (
