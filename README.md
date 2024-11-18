@@ -20,6 +20,7 @@ ApprovalTests for [go](https://golang.org/)
 ApprovalTests allows for easy testing of larger objects, strings and anything else that can be saved to a file (images, sounds, csv, etc...)
 
 # Examples
+
 ## Basic string verification
 
 ```go
@@ -29,22 +30,47 @@ func TestHelloWorld(t *testing.T) {
 ```
 
 ## Store approved files in testdata subfolder
-Some people prefer to store their approved files in a subfolder "testdata" instead of in the same folder as the 
+
+Some people prefer to store their approved files in a subfolder "testdata" instead of in the same folder as the
 production code. To configure this, add a call to UseFolder to your TestMain:
 
 ```go
 func TestMain(m *testing.M) {
-	UseFolder("testdata")
+	approvals.UseFolder("testdata")
+	os.Exit(m.Run())
+}
+```
+
+## Accept the changes in the output
+
+If you have made changes to the output and want to accept them, you can use the `AcceptChanges` function:
+
+```go
+func TestMain(m *testing.M) {
+	approvals.AcceptChanges(true)
+}
+```
+
+A good pattern is to use a command line flag to control this behavior, such as `-u` for update:
+
+```go
+var update = flag.Bool("u", false, "update .approved files")
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+	approvals.AcceptChanges(*update)
 	os.Exit(m.Run())
 }
 ```
 
 ## In Project
+
 Note: ApprovalTests uses approvals to test itself. Therefore there are many examples in the code itself.
 
 - [approvals_test.go](approvals_test.go)
 
 ## JSON
+
 VerifyJSONBytes - Simple Formatting for easy comparison. Also uses the .json file extension
 
 ```go
@@ -65,6 +91,7 @@ Matches file: approvals_test.TestVerifyJSON.received.json
 ```
 
 ## Reporters
+
 ApprovalTests becomes _much_ more powerful with reporters. Reporters launch programs on failure to help you understand, fix and approve results.
 
 You can make your own easily, [here's an example](reporters/beyond_compare.go)
