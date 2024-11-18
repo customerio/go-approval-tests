@@ -311,8 +311,8 @@ func alwaysOption(opts []verifyOptions) verifyOptions {
 }
 
 // AcceptChanges handles renaming `.received` files to `.approved` based on the given flag.
-// If `approve` is true, it renames all `.received.txt` and `.received.json` files in the default folder
-// to `.approved.txt` and `.approved.json`, respectively.
+// If `approve` is true, it renames all `.received.*` files and `.received` files in the default folder
+// to `.approved.*` and `.approved`, respectively.
 func AcceptChanges(approve bool) error {
 	if !approve {
 		return nil
@@ -332,22 +332,13 @@ func AcceptChanges(approve bool) error {
 			return nil
 		}
 
-		// Handle `.received.txt` files
-		if strings.HasSuffix(info.Name(), ".received.txt") {
-			approvedName := strings.TrimSuffix(path, "received.txt") + "approved.txt"
+		// Handle `.received.*` files and `.received` files
+		if strings.Contains(info.Name(), ".received") {
+			approvedName := strings.Replace(path, ".received", ".approved", 1)
 			if err := os.Rename(path, approvedName); err != nil {
 				return fmt.Errorf("failed to rename %s to %s: %w", path, approvedName, err)
 			}
-			fmt.Printf("Renamed %s to %s\n", path, approvedName)
-		}
-
-		// Handle `.received.json` files
-		if strings.HasSuffix(info.Name(), ".received.json") {
-			approvedName := strings.TrimSuffix(path, "received.json") + "approved.json"
-			if err := os.Rename(path, approvedName); err != nil {
-				return fmt.Errorf("failed to rename %s to %s: %w", path, approvedName, err)
-			}
-			fmt.Printf("Renamed %s to %s\n", path, approvedName)
+			fmt.Printf("Accepted changes to %s\n", approvedName)
 		}
 
 		return nil
