@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -33,7 +34,9 @@ type Failable interface {
 }
 
 // VerifyWithExtension Example:
-//   VerifyWithExtension(t, strings.NewReader("Hello"), ".json")
+//
+//	VerifyWithExtension(t, strings.NewReader("Hello"), ".json")
+//
 // Deprecated: Please use Verify with the Options() fluent syntax.
 func VerifyWithExtension(t Failable, reader io.Reader, extWithDot string, opts ...verifyOptions) {
 	t.Helper()
@@ -41,7 +44,8 @@ func VerifyWithExtension(t Failable, reader io.Reader, extWithDot string, opts .
 }
 
 // Verify Example:
-//   Verify(t, strings.NewReader("Hello"))
+//
+//	Verify(t, strings.NewReader("Hello"))
 func Verify(t Failable, reader io.Reader, opts ...verifyOptions) {
 	t.Helper()
 
@@ -94,7 +98,8 @@ func VerifyString(t Failable, s string, opts ...verifyOptions) {
 }
 
 // VerifyXMLStruct Example:
-//   VerifyXMLStruct(t, xml)
+//
+//	VerifyXMLStruct(t, xml)
 func VerifyXMLStruct(t Failable, obj interface{}, opts ...verifyOptions) {
 	t.Helper()
 	xmlContent, err := xml.MarshalIndent(obj, "", "  ")
@@ -111,7 +116,8 @@ func VerifyXMLStruct(t Failable, obj interface{}, opts ...verifyOptions) {
 }
 
 // VerifyXMLBytes Example:
-//   VerifyXMLBytes(t, []byte("<Test/>"))
+//
+//	VerifyXMLBytes(t, []byte("<Test/>"))
 func VerifyXMLBytes(t Failable, bs []byte, opts ...verifyOptions) {
 	t.Helper()
 	type node struct {
@@ -132,7 +138,8 @@ func VerifyXMLBytes(t Failable, bs []byte, opts ...verifyOptions) {
 }
 
 // VerifyJSONStruct Example:
-//   VerifyJSONStruct(t, json)
+//
+//	VerifyJSONStruct(t, json)
 func VerifyJSONStruct(t Failable, obj interface{}, opts ...verifyOptions) {
 	t.Helper()
 
@@ -146,7 +153,8 @@ func VerifyJSONStruct(t Failable, obj interface{}, opts ...verifyOptions) {
 }
 
 // VerifyJSONBytes Example:
-//   VerifyJSONBytes(t, []byte("{ \"Greeting\": \"Hello\" }"))
+//
+//	VerifyJSONBytes(t, []byte("{ \"Greeting\": \"Hello\" }"))
 func VerifyJSONBytes(t Failable, bs []byte, opts ...verifyOptions) {
 	t.Helper()
 	var obj map[string]interface{}
@@ -160,7 +168,8 @@ func VerifyJSONBytes(t Failable, bs []byte, opts ...verifyOptions) {
 }
 
 // VerifyMap Example:
-//   VerifyMap(t, map[string][string] { "dog": "bark" })
+//
+//	VerifyMap(t, map[string][string] { "dog": "bark" })
 func VerifyMap(t Failable, m interface{}, opts ...verifyOptions) {
 	t.Helper()
 	outputText := utils.PrintMap(m)
@@ -168,7 +177,8 @@ func VerifyMap(t Failable, m interface{}, opts ...verifyOptions) {
 }
 
 // VerifyArray Example:
-//   VerifyArray(t, []string{"dog", "cat"})
+//
+//	VerifyArray(t, []string{"dog", "cat"})
 func VerifyArray(t Failable, array interface{}, opts ...verifyOptions) {
 	t.Helper()
 	outputText := utils.PrintArray(array)
@@ -176,7 +186,8 @@ func VerifyArray(t Failable, array interface{}, opts ...verifyOptions) {
 }
 
 // VerifyAll Example:
-//   VerifyAll(t, "uppercase", []string("dog", "cat"}, func(x interface{}) string { return strings.ToUpper(x.(string)) })
+//
+//	VerifyAll(t, "uppercase", []string("dog", "cat"}, func(x interface{}) string { return strings.ToUpper(x.(string)) })
 func VerifyAll(t Failable, header string, collection interface{}, transform func(interface{}) string, opts ...verifyOptions) {
 	t.Helper()
 	if len(header) != 0 {
@@ -211,14 +222,12 @@ func (s *frontLoadedReporterCloser) Close() error {
 // The following examples shows how to use a reporter for all of your test cases
 // in a package directory through go's setup feature.
 //
-//
 //	func TestMain(m *testing.M) {
 //		r := approvals.UseReporter(reporters.NewBeyondCompareReporter())
 //		defer r.Close()
 //
 //		os.Exit(m.Run())
 //	}
-//
 func UseReporter(reporter reporters.Reporter) io.Closer {
 	closer := &reporterCloser{
 		reporter: defaultReporter,
@@ -253,13 +262,11 @@ func getReporter() reporters.Reporter {
 // The following examples shows how to use the idiomatic 'testdata' folder
 // for all of your test cases in a package directory.
 //
-//
 //	func TestMain(m *testing.M) {
 //		approvals.UseFolder("testdata")
 //
 //		os.Exit(m.Run())
 //	}
-//
 func UseFolder(f string) {
 	defaultFolder = f
 }
@@ -301,4 +308,48 @@ func alwaysOption(opts []verifyOptions) verifyOptions {
 	}
 
 	return v
+}
+
+// AcceptChanges handles renaming `.received` files to `.approved` based on the given flag.
+// If `approve` is true, it renames all `.received.txt` and `.received.json` files in the default folder
+// to `.approved.txt` and `.approved.json`, respectively.
+func AcceptChanges(approve bool) error {
+	if !approve {
+		return nil
+	}
+
+	if defaultFolder == "" {
+		return fmt.Errorf("default folder is not set; use UseFolder to set the folder")
+	}
+
+	return filepath.Walk(defaultFolder, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		// Skip directories
+		if info.IsDir() {
+			return nil
+		}
+
+		// Handle `.received.txt` files
+		if strings.HasSuffix(info.Name(), ".received.txt") {
+			approvedName := strings.TrimSuffix(path, "received.txt") + "approved.txt"
+			if err := os.Rename(path, approvedName); err != nil {
+				return fmt.Errorf("failed to rename %s to %s: %w", path, approvedName, err)
+			}
+			fmt.Printf("Renamed %s to %s\n", path, approvedName)
+		}
+
+		// Handle `.received.json` files
+		if strings.HasSuffix(info.Name(), ".received.json") {
+			approvedName := strings.TrimSuffix(path, "received.json") + "approved.json"
+			if err := os.Rename(path, approvedName); err != nil {
+				return fmt.Errorf("failed to rename %s to %s: %w", path, approvedName, err)
+			}
+			fmt.Printf("Renamed %s to %s\n", path, approvedName)
+		}
+
+		return nil
+	})
 }
