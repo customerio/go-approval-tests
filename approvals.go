@@ -79,7 +79,7 @@ func Verify(t Failable, reader io.Reader, opts ...verifyOptions) {
 	}
 
 	reporter := getReporter()
-	err := namer.compare(namer.getApprovalFile(extWithDot), namer.getReceivedFile(extWithDot), reader)
+	err := namer.compare(namer.getApprovalFile(extWithDot), namer.getApprovalFile(extWithDot), reader)
 	if err != nil {
 		reporter.Report(namer.getApprovalFile(extWithDot), namer.getReceivedFile(extWithDot))
 		t.Log("Failed Approval: received does not match approved.")
